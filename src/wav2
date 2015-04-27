@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# WAV to {FLAC | MP3} converter
+# Smart converter from WAV to FLAC and/or MP3 format
+#
+# Requires: flac and/or lame
+#
+# Copyright © 2015 Mark Karpov
+#
+# wav2 is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# wav2 is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program. If not, see <http://www.gnu.org/licenses/>.
+
+### functions
+
+bad_exit() # prints error message and exits the program
+{
+    echo "$(basename $0): ${1:-"Unknown Error"}"  1>&2
+    exit 1
+}
+
+### main
