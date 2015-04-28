@@ -1,6 +1,4 @@
-# Smart Converter from WAV to FLAC and/or MP3 format
-
-*Under development, nothing to try yet.*
+# WAV2 FLAC and/or MP3 format
 
 This script can convert `*.wav` files into FLAC or MP3 format using `flac`
 or `lame` encoders respectively. Main features:
@@ -38,7 +36,28 @@ install them too.
 
 ## Documentation
 
-`wav2` comes with its own man page.
+`wav2` comes with its own man page. Here is short synopsis:
+
+```
+wav2 — convert WAV files into FLAC and/or MP3 format
+
+Usage: wav2 [OPTIONS] [FILES]
+
+Available options:
+  -h,--help                Show this help text
+  -F,--flac                Convert FILES into FLAC format
+  -M,--mp3                 Convert FILES into MP3 format
+  -n,--count               Count number of FILES and write it as tag
+  -o,--output OUT          Save converted files in OUT directory
+  -i,--indexing            Parse numeric prefix of files and write as tag
+  -l,--album STR           Write STR as «album» tag
+  -a,--artist STR          Write STR as «artist» tag
+  -c,--comment STR         Write STR as «comment» tag
+  -g,--genre STR           Write STR as «genre» tag
+  -y,--year STR            Write STR as «year» tag
+  --license                Show license of the program
+  --version                Show version of the program
+```
 
 ## Missing Features?
 
