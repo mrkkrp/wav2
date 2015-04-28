@@ -1,7 +1,8 @@
 # WAV2 FLAC and/or MP3 format
 
 This script can convert `*.wav` files into FLAC or MP3 format using `flac`
-or `lame` encoders respectively. Main features:
+or `lame` encoders respectively. It's created to produce properly tagged,
+high quality versions of «master» files. Main features:
 
 * when file name has numeric prefix it parses it and writes it as «tract
   number» tag;
