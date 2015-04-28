@@ -63,7 +63,7 @@ Available options:
   -F,--flac                Convert FILES into FLAC format
   -M,--mp3                 Convert FILES into MP3 format
   -c,--count               Count number of FILES and write it as tag
-  -o,--output OUT          Directory where to save converted files
+  -o,--output OUT          Save converted files in OUT directory
   -i,--indexing            Parse numeric prefix of files and write as tag
   -a,--artist STR          Write STR as «album artist» tag
   -t,--title STR           Write STR as «album title» tag
