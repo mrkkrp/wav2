@@ -8,11 +8,13 @@ or `lame` encoders respectively. Main features:
 * when file name has numeric prefix it parses it and writes it as «tract
   number» tag;
 
+* it can also automatically write «track title» tag;
+
 * it can automatically count total number of supplied files and write this
   number as «total tracks» tag;
 
-* it accepts various options like «album artist» and «album name» and passes
-  them to corresponding encoder, this way you don't need to remember
+* it accepts various options like «album artist» and «album title» and
+  passes them to corresponding encoder, this way you don't need to remember
   different options for every encoder (`flac` or `lame`), `wav2` gives you
   level of abstraction;
 
@@ -37,6 +39,11 @@ install them too.
 ## Documentation
 
 `wav2` comes with its own man page.
+
+## Missing Features?
+
+If you would like to see some new features in `wav2`,
+[open an issue](https://github.com/mrkkrp/wav2/issues).
 
 ## License
 
