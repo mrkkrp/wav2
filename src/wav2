@@ -176,11 +176,11 @@ process_flac()
         cmd="$cmd -T \"TITLE=$base_name\""
     fi
     test $count_tracks -ne 0 && cmd="$cmd -T \"TRACKTOTAL=$files_number\""
-    test -n "$tag_artist"    && cmd="$cmd -T \"ARTIST=$tag_artist\""
-    test -n "$tag_genre"     && cmd="$cmd -T \"GENRE=$tag_genre\""
     test -n "$tag_album"     && cmd="$cmd -T \"ALBUM=$tag_album\""
-    test -n "$tag_year"      && cmd="$cmd -T \"DATE=$tag_year\""
+    test -n "$tag_artist"    && cmd="$cmd -T \"ARTIST=$tag_artist\""
     test -n "$tag_comment"   && cmd="$cmd -T \"COMMENT=$tag_comment\""
+    test -n "$tag_genre"     && cmd="$cmd -T \"GENRE=$tag_genre\""
+    test -n "$tag_year"      && cmd="$cmd -T \"DATE=$tag_year\""
     test -n "$output_dir"    && cmd="$cmd -o \"$output_dir/$base_name.flac\""
     cmd="$cmd \"$1\""
     eval $cmd
@@ -188,7 +188,31 @@ process_flac()
 
 process_mp3()
 {
-    echo boo
+    local base_name=$(basename -s .wav "$1")
+    cmd="lame -b 320 -h --add-id3v2"
+    if test $parse_index -ne 0
+    then
+        local index=
+        local name=
+        IFS=' '
+        read -r index name <<< "$base_name"
+        cmd="$cmd --tt \"$name\""
+        if test $count_tracks -ne 0
+        then
+            cmd="$cmd --tn $index/$files_number"
+        else
+            cmd="$cmd --tn $index"
+        fi
+    else
+        cmd="$cmd --tt \"$base_name\""
+    fi
+    test -n "$tag_album"     && cmd="$cmd --tl \"$tag_album\""
+    test -n "$tag_artist"    && cmd="$cmd --ta \"$tag_artist\""
+    test -n "$tag_comment"   && cmd="$cmd --tc \"$tag_comment\""
+    test -n "$tag_genre"     && cmd="$cmd --tg \"$tag_genre\""
+    test -n "$tag_year"      && cmd="$cmd --ty \"$tag_year\""
+    cmd="$cmd \"$1\" \"$output_dir/$base_name.mp3\""
+    eval $cmd
 }
 
 ### main
