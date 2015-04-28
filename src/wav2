@@ -106,7 +106,7 @@ version()
 parse_opts()
 {
     getopt -T
-    test $? -ne 4 && bad_exit "Need enhanced version of \`getopt\' to function."
+    test $? -ne 4 && bad_exit "Need enhanced version of \`getopt' to function."
     local parsed_options=$(getopt --name "wav2" --options $SHORT_OPTS \
                                   --longoptions $LONG_OPTS -- "$@")
     test $? -ne 0 && bad_exit "parsing of command line options failed."
@@ -218,6 +218,14 @@ process_mp3()
 ### main
 
 parse_opts "$@"
+if test $convert_to_flac -ne 0
+then
+    which flac > /dev/null || bad_exit "cannot find \`flac' program, aborting."
+fi
+if test $convert_to_mp3 -ne 0
+then
+    which lame > /dev/null || bad_exit "cannot find \`lame' program, aborting."
+fi
 test -n "$output_dir" && mkdir -p "$output_dir"
 for i in "${files[@]}"
 do
