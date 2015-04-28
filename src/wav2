@@ -22,8 +22,10 @@
 
 ### constants
 
-short_opts="FMco:ia:t:y:m:h"
-long_opts="flac,mp3,count,output:,indexing,artist:,title:,year:,comment:,help"
+LONG_OPTS="help,flac,mp3,count,output:,indexing,artist:,title:,\
+year:,comment:,license,version"
+SHORT_OPTS="FMco:ia:t:y:m:h"
+WAV2_VERSION="0.1.0"
 
 ### variables: options
 
@@ -67,19 +69,50 @@ Available options:
   -t,--title STR           Write STR as «album title» tag
   -y,--year STR            Write STR as «year» tag
   -m,--comment STR         Write STR as «comment» tag
+  --license                Show license of the program
+  --version                Show version of the program
 EOF
+}
+
+license()
+{
+    cat << EOF
+WAV2 — convert WAV files into FLAC and/or MP3 format.
+Copyright © 2015 Mark Karpov
+
+WAV2 is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+WAV2 is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+details.
+
+You should have received a copy of the GNU General Public License along
+with this program. If not, see <http://www.gnu.org/licenses/>.
+EOF
+}
+
+version()
+{
+    echo "WAV2 $WAV2_VERSION"
 }
 
 parse_opts()
 {
     getopt -T
     test $? -ne 4 && bad_exit "Need enhanced version of \`getopt\' to function."
-    local parsed_options=$(getopt --name "wav2" --options $short_opts \
-                                  --longoptions $long_opts -- "$@")
+    local parsed_options=$(getopt --name "wav2" --options $SHORT_OPTS \
+                                  --longoptions $LONG_OPTS -- "$@")
     test $? -ne 0 && bad_exit "parsing of command line options failed."
     eval set -- "$parsed_options"
     while test "$1" != ""; do
         case "$1" in
+            -h | --help     ) usage
+                              exit
+                              ;;
             -F | --flac     ) convert_to_flac=1
                               ;;
             -M | --mp3      ) convert_to_mp3=1
@@ -103,7 +136,10 @@ parse_opts()
             -m | --comment  ) shift
                               tag_comment="$1"
                               ;;
-            -h | --help     ) usage
+            --license       ) license
+                              exit
+                              ;;
+            --version       ) version
                               exit
                               ;;
             --              ) shift
