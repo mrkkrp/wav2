@@ -24,7 +24,7 @@
 
 LONG_OPTS="help,flac,mp3,count,output:,indexing,album:,artist:,comment:,\
 genre:,year:,license,version"
-SHORT_OPTS="hFMco:ia:r:m:g:y:"
+SHORT_OPTS="hFMno:il:a:c:g:y:"
 WAV2_VERSION="0.1.0"
 
 ### variables: options
@@ -64,12 +64,12 @@ Available options:
   -h,--help                Show this help text
   -F,--flac                Convert FILES into FLAC format
   -M,--mp3                 Convert FILES into MP3 format
-  -c,--count               Count number of FILES and write it as tag
+  -n,--count               Count number of FILES and write it as tag
   -o,--output OUT          Save converted files in OUT directory
   -i,--indexing            Parse numeric prefix of files and write as tag
-  -a,--album STR           Write STR as «album» tag
-  -r,--artist STR          Write STR as «artist» tag
-  -m,--comment STR         Write STR as «comment» tag
+  -l,--album STR           Write STR as «album» tag
+  -a,--artist STR          Write STR as «artist» tag
+  -c,--comment STR         Write STR as «comment» tag
   -g,--genre STR           Write STR as «genre» tag
   -y,--year STR            Write STR as «year» tag
   --license                Show license of the program
@@ -121,20 +121,20 @@ parse_opts()
                               ;;
             -M | --mp3      ) convert_to_mp3=1
                               ;;
-            -c | --count    ) count_tracks=1
+            -n | --count    ) count_tracks=1
                               ;;
             -o | --output   ) shift
                               output_dir="$1"
                               ;;
             -i | --indexing ) parse_index=1
                               ;;
-            -a | --album    ) shift
+            -l | --album    ) shift
                               tag_album="$1"
                               ;;
-            -r | --artist   ) shift
+            -a | --artist   ) shift
                               tag_artist="$1"
                               ;;
-            -m | --comment  ) shift
+            -c | --comment  ) shift
                               tag_comment="$1"
                               ;;
             -g | --genre    ) shift
