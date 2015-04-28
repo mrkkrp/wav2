@@ -20,6 +20,27 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
+### constants
+
+short_opts="FMco:ia:t:y:m:h"
+long_opts="flac,mp3,count,output:,indexing,artist:,title:,year:,comment:,help"
+
+### variables: options
+
+convert_to_flac=0
+convert_to_mp3=0
+count_total_tracks=0
+output_directory=
+parse_track_index=0
+tag_album_artist=
+tag_album_title=
+tag_album_year=
+tag_comment=
+
+### variables: other
+
+files=
+
 ### functions
 
 bad_exit() # prints error message and exits the program
@@ -28,4 +49,84 @@ bad_exit() # prints error message and exits the program
     exit 1
 }
 
+usage()
+{
+    cat << EOF
+wav2 — convert WAV files into FLAC and/or MP3 format
+
+Usage: wav2 [OPTIONS] [FILES]
+
+Available options:
+  -h,--help                Show this help text
+  -F,--flac                Convert FILES into FLAC format
+  -M,--mp3                 Convert FILES into MP3 format
+  -c,--count               Count number of FILES and write it as tag
+  -o,--output OUT          Directory where to save converted files
+  -i,--indexing            Parse numeric prefix of files and write as tag
+  -a,--artist STR          Write STR as «album artist» tag
+  -t,--title STR           Write STR as «album title» tag
+  -y,--year STR            Write STR as «year» tag
+  -m,--comment STR         Write STR as «comment» tag
+EOF
+}
+
+parse_opts()
+{
+    getopt -T
+    test $? -ne 4 && bad_exit "Need enhanced version of \`getopt\' to function."
+    local parsed_options=$(getopt --name "wav2" --options $short_opts \
+                                  --longoptions $long_opts -- "$@")
+    test $? -ne 0 && bad_exit "parsing of command line options failed."
+    eval set -- "$parsed_options"
+    while test "$1" != ""; do
+        case "$1" in
+            -F | --flac     ) convert_to_flac=1
+                              ;;
+            -M | --mp3      ) convert_to_mp3=1
+                              ;;
+            -c | --count    ) count_total_tracks=1
+                              ;;
+            -o | --output   ) shift
+                              output_directory="$1"
+                              ;;
+            -i | --indexing ) parse_track_index=1
+                              ;;
+            -a | --artist   ) shift
+                              tag_album_artist="$1"
+                              ;;
+            -t | --title    ) shift
+                              tag_album_title="$1"
+                              ;;
+            -y | --year     ) shift
+                              tag_album_year="$1"
+                              ;;
+            -m | --comment  ) shift
+                              tag_comment="$1"
+                              ;;
+            -h | --help     ) usage
+                              exit
+                              ;;
+            --              ) shift
+                              files="$@"
+                              break
+                              ;;
+            ?               ) bad_exit "parsing error."
+        esac
+        shift
+    done
+}
+
 ### main
+
+parse_opts $@
+
+echo "Convert to FLAC:    $convert_to_flac"
+echo "Convert to MP3:     $convert_to_mp3"
+echo "Count total tracks: $count_total_tracks"
+echo "Output directory:   $output_directory"
+echo "Parse track number: $parse_track_index"
+echo "Album artist:       $tag_album_artist"
+echo "Album title:        $tag_album_title"
+echo "Album year:         $tag_album_year"
+echo "Comment:            $tag_comment"
+echo "Files to process:   $files"
