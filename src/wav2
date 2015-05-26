@@ -232,3 +232,4 @@ do
     test $convert_to_flac -ne 0 && process_flac "$i"
     test $convert_to_mp3  -ne 0 && process_mp3  "$i"
 done
+exit 0
