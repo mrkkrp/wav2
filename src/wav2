@@ -63,7 +63,7 @@ parser.add_argument('-n', '--count', action='store_true', dest='count_tracks',
                     help='count number of FILEs and write it as tag')
 parser.add_argument('-i', '--indexing', action='store_true', dest='indexing',
                     help='parse numeric prefix of filenames, store it as tag')
-parser.add_argument('-o', '--output', metavar='OUT', dest='out_dir',
+parser.add_argument('-o', '--output', metavar='OUT', dest='out_dir', default='',
                     help='save converted files in OUT directory')
 parser.add_argument('-l', '--album', metavar='S', dest='album',
                     help='write S as «album» tag')
@@ -103,7 +103,7 @@ def output_name(out_dir, name, ext):
     """Join directory ‘out_dir’, base name ‘name’ and extension ‘ext’. ‘name’ is
 transformed so it can be used on all major operating systems."""
     for x in tricky_chars: name = name.replace(x, fair_char)
-    return os.path.join(out_dir or '',
+    return os.path.join(out_dir,
                         name + os.path.extsep + ext if ext else name)
 
 def make_flac(name):
