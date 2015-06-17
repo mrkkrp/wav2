@@ -47,24 +47,29 @@ install them too.
 `wav2` comes with its own man page. Here is short synopsis:
 
 ```
-wav2 — convert WAV files into FLAC and/or MP3 format
+usage: wav2 [-h] [-F] [-M] [-n] [-i] [-o OUT] [-l S] [-a S] [-c S] [-g S] [-y S]
+            [--license] [--version]
+            [FILE [FILE ...]]
 
-Usage: wav2 [OPTIONS] [FILES]
+Convert WAV files into FLAC and/or MP3 format
 
-Available options:
-  -h,--help                Show this help text
-  -F,--flac                Convert FILES into FLAC format
-  -M,--mp3                 Convert FILES into MP3 format
-  -n,--count               Count number of FILES and write it as tag
-  -o,--output OUT          Save converted files in OUT directory
-  -i,--indexing            Parse numeric prefix of files and write as tag
-  -l,--album STR           Write STR as «album» tag
-  -a,--artist STR          Write STR as «artist» tag
-  -c,--comment STR         Write STR as «comment» tag
-  -g,--genre STR           Write STR as «genre» tag
-  -y,--year STR            Write STR as «year» tag
-  --license                Show license of the program
-  --version                Show version of the program
+positional arguments:
+  FILE                  file to process
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -F, --flac            convert FILE into FLAC format
+  -M, --mp3             convert FILE into MP3 format
+  -n, --count           count number of FILEs and write it as tag
+  -i, --indexing        parse numeric prefix of filenames, store it as tag
+  -o OUT, --output OUT  save converted files in OUT directory
+  -l S, --album S       write S as «album» tag
+  -a S, --artist S      write S as «artist» tag
+  -c S, --comment S     write S as «comment» tag
+  -g S, --genre S       write S as «genre» tag
+  -y S, --year S        write S as «year» tag
+  --license             show program's license and exit
+  --version             show program's version number and exit
 ```
 
 ## Missing Features?

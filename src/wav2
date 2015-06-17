@@ -53,14 +53,14 @@ tricky_chars = frozenset('\x00/\\?%*:|"<>')
 fair_char = '_'
 
 parser = argparse.ArgumentParser(description=description)
-parser.add_argument('files', metavar='FILES', nargs='*',
-                    help='files to process')
+parser.add_argument('files', metavar='FILE', nargs='*',
+                    help='file to process')
 parser.add_argument('-F', '--flac', action='store_true', dest='make_flac',
-                    help='convert FILES into FLAC format')
+                    help='convert FILE into FLAC format')
 parser.add_argument('-M', '--mp3',  action='store_true', dest='make_mp3',
-                    help='convert FILES into MP3 format')
+                    help='convert FILE into MP3 format')
 parser.add_argument('-n', '--count', action='store_true', dest='count_tracks',
-                    help='count number of FILES and write it as tag')
+                    help='count number of FILEs and write it as tag')
 parser.add_argument('-i', '--indexing', action='store_true', dest='indexing',
                     help='parse numeric prefix of filenames, store it as tag')
 parser.add_argument('-o', '--output', metavar='OUT', dest='out_dir',
