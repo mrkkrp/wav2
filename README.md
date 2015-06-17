@@ -1,8 +1,8 @@
-# WAV2 FLAC and/or MP3 format
+# Convert WAV files into FLAC and/or MP3 Format
 
-This script can convert `*.wav` files into FLAC or MP3 format using `flac`
-or `lame` encoders respectively. It's created to produce properly tagged,
-high quality versions of «master» files. Main features:
+This script can convert `.wav` files into FLAC or MP3 format using `flac` or
+`lame` encoders respectively. It's created to produce properly tagged, high
+quality versions of «master» files. Main features:
 
 * when file name has numeric prefix it parses it and writes it as «tract
   number» tag;
@@ -21,11 +21,18 @@ high quality versions of «master» files. Main features:
 
 * it can convert to both FLAC and MP3 formats via one invocation;
 
-* output directory can be specified (and created if needed).
+* output directory can be specified (and created if needed);
+
+* it makes sure that names of output files are acceptable on all major
+  platforms, that is, you can have a file with question mark `?` in its name
+  on your Unix system, `wav2` will produce correct track title tag, but the
+  file name itself will be converted so Windows users can copy the file too.
 
 ## Installation
 
-Just execute:
+This is a Python 3 script, you will need Python 3 installed to run it.
+
+To install the software `cd` into the repository and execute the following:
 
 ```
 # bash install.sh
