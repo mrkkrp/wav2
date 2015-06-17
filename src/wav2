@@ -1,11 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env python
 #
-# WAV to {FLAC | MP3} converter
-# Smart converter from WAV to FLAC and/or MP3 format
+# WAV to FLAC and/or MP3 converter
 #
 # Requires: flac and/or lame
 #
-# Copyright © 2015 Mark Karpov
+# Copyright © 2015 Mark Karpov <markkarpov@openmailbox.org>
 #
 # wav2 is free software: you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software
@@ -20,216 +19,153 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-### constants
+import argparse
+import os
+import shutil
+import subprocess
+import sys
 
-LONG_OPTS="help,flac,mp3,count,output:,indexing,album:,artist:,comment:,\
-genre:,year:,license,version"
-SHORT_OPTS="hFMno:il:a:c:g:y:"
-WAV2_VERSION="0.1.0"
+# Constants and other useful values
 
-### variables: options
+prog_name = os.path.basename(__file__)
+version = '0.1.0'
+description = 'Convert WAV files into FLAC and/or MP3 format'
+license = """
+wav2 — convert WAV files into FLAC and/or MP3 format.
 
-convert_to_flac=0
-convert_to_mp3=0
-count_tracks=0
-output_dir=
-parse_index=0
-tag_album=
-tag_artist=
-tag_comment=
-tag_genre=
-tag_year=
-
-### variables: other
-
-files=
-files_number=0
-
-### functions
-
-bad_exit() # prints error message and exits the program
-{
-    echo "$(basename $0): ${1:-"unknown error"}"  1>&2
-    exit 1
-}
-
-usage()
-{
-    cat << EOF
-wav2 — convert WAV files into FLAC and/or MP3 format
-
-Usage: wav2 [OPTIONS] [FILES]
-
-Available options:
-  -h,--help                Show this help text
-  -F,--flac                Convert FILES into FLAC format
-  -M,--mp3                 Convert FILES into MP3 format
-  -n,--count               Count number of FILES and write it as tag
-  -o,--output OUT          Save converted files in OUT directory
-  -i,--indexing            Parse numeric prefix of files and write as tag
-  -l,--album STR           Write STR as «album» tag
-  -a,--artist STR          Write STR as «artist» tag
-  -c,--comment STR         Write STR as «comment» tag
-  -g,--genre STR           Write STR as «genre» tag
-  -y,--year STR            Write STR as «year» tag
-  --license                Show license of the program
-  --version                Show version of the program
-EOF
-}
-
-license()
-{
-    cat << EOF
-WAV2 — convert WAV files into FLAC and/or MP3 format.
 Copyright © 2015 Mark Karpov
 
-WAV2 is free software: you can redistribute it and/or modify it under the
+wav2 is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version.
 
-WAV2 is distributed in the hope that it will be useful, but WITHOUT ANY
+wav2 is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 details.
 
 You should have received a copy of the GNU General Public License along
 with this program. If not, see <http://www.gnu.org/licenses/>.
-EOF
-}
+"""
 
-version()
-{
-    echo "WAV2 $WAV2_VERSION"
-}
+tricky_chars = frozenset('\x00/\\?%*:|"<>')
+fair_char = '_'
 
-parse_opts()
-{
-    getopt -T
-    test $? -ne 4 && bad_exit "Need enhanced version of \`getopt' to function."
-    local parsed_options=$(getopt --name "wav2" --options $SHORT_OPTS \
-                                  --longoptions $LONG_OPTS -- "$@")
-    test $? -ne 0 && bad_exit "parsing of command line options failed."
-    eval set -- "$parsed_options"
-    while test "$1" != ""
-    do
-        case "$1" in
-            -h | --help     ) usage
-                              exit
-                              ;;
-            -F | --flac     ) convert_to_flac=1
-                              ;;
-            -M | --mp3      ) convert_to_mp3=1
-                              ;;
-            -n | --count    ) count_tracks=1
-                              ;;
-            -o | --output   ) shift
-                              output_dir="$1"
-                              ;;
-            -i | --indexing ) parse_index=1
-                              ;;
-            -l | --album    ) shift
-                              tag_album="$1"
-                              ;;
-            -a | --artist   ) shift
-                              tag_artist="$1"
-                              ;;
-            -c | --comment  ) shift
-                              tag_comment="$1"
-                              ;;
-            -g | --genre    ) shift
-                              tag_genre="$1"
-                              ;;
-            -y | --year     ) shift
-                              tag_year="$1"
-                              ;;
-            --license       ) license
-                              exit
-                              ;;
-            --version       ) version
-                              exit
-                              ;;
-            --              ) shift
-                              files=("$@")
-                              files_number=$#
-                              break
-                              ;;
-            ?               ) bad_exit "parsing error."
-        esac
-        shift
-    done
-}
+parser = argparse.ArgumentParser(description=description)
+parser.add_argument('files', metavar='FILES', nargs='*',
+                    help='files to process')
+parser.add_argument('-F', '--flac', action='store_true', dest='make_flac',
+                    help='convert FILES into FLAC format')
+parser.add_argument('-M', '--mp3',  action='store_true', dest='make_mp3',
+                    help='convert FILES into MP3 format')
+parser.add_argument('-n', '--count', action='store_true', dest='count_tracks',
+                    help='count number of FILES and write it as tag')
+parser.add_argument('-i', '--indexing', action='store_true', dest='indexing',
+                    help='parse numeric prefix of filenames, store it as tag')
+parser.add_argument('-o', '--output', metavar='OUT', dest='out_dir',
+                    help='save converted files in OUT directory')
+parser.add_argument('-l', '--album', metavar='S', dest='album',
+                    help='write S as «album» tag')
+parser.add_argument('-a', '--artist', metavar='S', dest='artist',
+                    help='write S as «artist» tag')
+parser.add_argument('-c', '--comment', metavar='S', dest='comment',
+                    help='write S as «comment» tag')
+parser.add_argument('-g', '--genre', metavar='S', dest='genre',
+                    help='write S as «genre» tag')
+parser.add_argument('-y', '--year', metavar='S', dest='year',
+                    help='write S as «year» tag')
+parser.add_argument('--license', action='store_true', dest='show_license',
+                    help="show program's license and exit")
+parser.add_argument('--version', action='version',
+                    version='%(prog)s ' + version)
 
-process_flac()
-{
-    local base_name=$(basename -s .wav "$1")
-    cmd="flac -8 --force"
-    if test $parse_index -ne 0
-    then
-        local index=
-        local name=
-        IFS=' '
-        read -r index name <<< "$base_name"
-        cmd="$cmd -T \"TRACKNUMBER=$index\""
-        cmd="$cmd -T \"TITLE=$name\""
-    else
-        cmd="$cmd -T \"TITLE=$base_name\""
-    fi
-    test $count_tracks -ne 0 && cmd="$cmd -T \"TRACKTOTAL=$files_number\""
-    test -n "$tag_album"     && cmd="$cmd -T \"ALBUM=$tag_album\""
-    test -n "$tag_artist"    && cmd="$cmd -T \"ARTIST=$tag_artist\""
-    test -n "$tag_comment"   && cmd="$cmd -T \"COMMENT=$tag_comment\""
-    test -n "$tag_genre"     && cmd="$cmd -T \"GENRE=$tag_genre\""
-    test -n "$tag_year"      && cmd="$cmd -T \"DATE=$tag_year\""
-    test -n "$output_dir"    && cmd="$cmd -o \"$output_dir/$base_name.flac\""
-    cmd="$cmd \"$1\""
-    eval $cmd
-}
+args = parser.parse_args()
 
-process_mp3()
-{
-    local base_name=$(basename -s .wav "$1")
-    cmd="lame -b 320 -h --add-id3v2"
-    if test $parse_index -ne 0
-    then
-        local index=
-        local name=
-        IFS=' '
-        read -r index name <<< "$base_name"
-        cmd="$cmd --tt \"$name\""
-        if test $count_tracks -ne 0
-        then
-            cmd="$cmd --tn $index/$files_number"
-        else
-            cmd="$cmd --tn $index"
-        fi
-    else
-        cmd="$cmd --tt \"$base_name\""
-    fi
-    test -n "$tag_album"     && cmd="$cmd --tl \"$tag_album\""
-    test -n "$tag_artist"    && cmd="$cmd --ta \"$tag_artist\""
-    test -n "$tag_comment"   && cmd="$cmd --tc \"$tag_comment\""
-    test -n "$tag_genre"     && cmd="$cmd --tg \"$tag_genre\""
-    test -n "$tag_year"      && cmd="$cmd --ty \"$tag_year\""
-    cmd="$cmd \"$1\" \"$output_dir/$base_name.mp3\""
-    eval $cmd
-}
+# Here we describe various functions that implements all functionality of
+# the program.
 
-### main
+def failure(str):
+    "Print error message ‘str’ to stderr and exit with code 1."
+    print(prog_name, ": error: ", str, file=sys.stderr)
+    exit(1)
 
-parse_opts "$@"
-if test $convert_to_flac -ne 0
-then
-    which flac > /dev/null || bad_exit "cannot find \`flac' program, aborting."
-fi
-if test $convert_to_mp3 -ne 0
-then
-    which lame > /dev/null || bad_exit "cannot find \`lame' program, aborting."
-fi
-test -n "$output_dir" && mkdir -p "$output_dir"
-for i in "${files[@]}"
-do
-    test $convert_to_flac -ne 0 && process_flac "$i"
-    test $convert_to_mp3  -ne 0 && process_mp3  "$i"
-done
-exit 0
+def bare_name(name):
+    "Return base name of ‘name’, but without extension."
+    return os.path.splitext(os.path.basename(name))[0]
+
+def split_filename(name):
+    "Return tuple: index of file (parsed from prefix) and its title."
+    index, title = name.split(maxsplit=1)
+    return index.lstrip('0'), title
+
+def output_name(out_dir, name, ext):
+    """Join directory ‘out_dir’, base name ‘name’ and extension ‘ext’. ‘name’ is
+transformed so it can be used on all major operating systems."""
+    for x in tricky_chars: name = name.replace(x, fair_char)
+    return os.path.join(out_dir or '',
+                        name + os.path.extsep + ext if ext else name)
+
+def make_flac(name):
+    """Call ‘flac’ codec and tell it to translate file named ‘name’ according to
+supplied arguments ‘args’."""
+    cmd = ['flac', '-8', '--force']
+    bname = title = bare_name(name)
+    if args.indexing:
+        index, title = split_filename(bname)
+        cmd.extend(['-T', 'TRACKNUMBER=' + index])
+    if args.count_tracks:
+        cmd.extend(['-T', 'TRACKTOTAL=' + str(len(args.files))])
+    cmd.extend(['-T', 'TITLE=' + title])
+    if args.album: cmd.extend(['-T', 'ALBUM=' + args.album])
+    if args.artist: cmd.extend(['-T', 'ARTIST=' + args.artist])
+    if args.comment: cmd.extend(['-T', 'COMMENT=' + args.comment])
+    if args.genre: cmd.extend(['-T', 'GENRE=' + args.genre])
+    if args.year: cmd.extend(['-T', 'DATE=' + args.year])
+    cmd.extend(['-o', output_name(args.out_dir, bname, 'flac')])
+    cmd.append(name)
+    subprocess.call(cmd)
+
+def make_mp3(name):
+    """Call ‘lame’ codec and tell it to translate file name ‘name’ according to
+supplied arguments ‘args’."""
+    cmd = ['lame', '-b', '320', '-h', '--add-id3v2']
+    bname = title = bare_name(name)
+    if args.indexing:
+        index, title = split_filename(bname)
+        cmd.extend(['--tn',
+                    index + '/' + str(len(args.files))
+                    if args.count_tracks else index])
+    cmd.extend(['--tt', title])
+    if args.album: cmd.extend(['--tl', args.album])
+    if args.artist: cmd.extend(['--ta', args.artist])
+    if args.comment: cmd.extend(['--tc', args.comment])
+    if args.genre: cmd.extend(['--tg', args.genre])
+    if args.year: cmd.extend(['--ty', args.year])
+    cmd.append(name)
+    cmd.append(output_name(args.out_dir, bname, 'mp3'))
+    subprocess.call(cmd)
+
+# Execution starts here, show license if user wants to see it.
+
+if args.show_license: print(license)
+
+# It's better to check if required tools are present and print user-friendly
+# error messages.
+
+if args.make_flac and not shutil.which('flac'):
+    failure('cannot find ‘flac’ program')
+
+if args.make_mp3 and not shutil.which('lame'):
+    failure('cannot find ‘lame’ program')
+
+# If user has specified output directory, we should make sure that it does
+# exist.
+
+if args.out_dir: os.makedirs(args.out_dir, exist_ok=True)
+
+# Traverse list of positional (free) arguments and perform conversion.
+
+for f in args.files:
+    if args.make_flac: make_flac(f)
+    if args.make_mp3: make_mp3(f)
