@@ -1,4 +1,4 @@
-# Convert WAV files into FLAC and/or MP3 Format
+# WAV → FLAC and/or MP3
 
 This script can convert `.wav` files into FLAC or MP3 format using `flac` or
 `lame` encoders respectively. It's created to produce properly tagged, high
