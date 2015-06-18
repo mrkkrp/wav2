@@ -21,6 +21,7 @@
 
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -48,9 +49,6 @@ details.
 You should have received a copy of the GNU General Public License along
 with this program. If not, see <http://www.gnu.org/licenses/>.
 """
-
-tricky_chars = frozenset('\x00/\\?%*:|"<>')
-fair_char = '_'
 
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument('files', metavar='FILE', nargs='*',
@@ -102,9 +100,8 @@ def split_filename(name):
 def output_name(out_dir, name, ext):
     """Join directory ‘out_dir’, base name ‘name’ and extension ‘ext’. ‘name’ is
 transformed so it can be used on all major operating systems."""
-    for x in tricky_chars: name = name.replace(x, fair_char)
-    return os.path.join(out_dir,
-                        name + os.path.extsep + ext if ext else name)
+    return os.path.join(out_dir, re.sub(r'[\x00/\\?%*:|"<>]', '_', name) +
+                        (os.path.extsep + ext if ext else ''))
 
 def make_flac(name):
     """Call ‘flac’ codec and tell it to translate file named ‘name’ according to
