@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# WAV2 Uninstallation script
+# wav2 Uninstallation script
 #
 # Copyright © 2015 Mark Karpov
 #
@@ -31,7 +31,7 @@ bad_exit() # prints error message and exits the program
 
 ### main
 
-echo 'WAV2 uninstallation has been started;'
+echo 'wav2 uninstallation has been started;'
 
 # 1. check if actual user is root (must be root to uninstall the software)
 

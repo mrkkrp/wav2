@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# WAV2 Installation script
+# wav2 Installation script
 #
 # Copyright © 2015 Mark Karpov
 #
@@ -31,7 +31,7 @@ bad_exit() # prints error message and exits the program
 
 ### main
 
-echo 'WAV2 installation has been started;'
+echo 'wav2 installation has been started;'
 
 # 1. check if actual user is root (must be root to install the software)
 
