@@ -19,12 +19,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-import os
-import re
-import shutil
-import subprocess
-import sys
+import argparse, os, re, shutil, subprocess, sys
 
 # Constants and other useful values
 
@@ -84,28 +79,38 @@ args = parser.parse_args()
 # the program.
 
 def failure(str):
-    "Print error message ‘str’ to stderr and exit with code 1."
+    """
+    Print error message ‘str’ to stderr and exit with code 1.
+    """
     print(prog_name, ": error: ", str, file=sys.stderr)
     exit(1)
 
-def bare_name(name):
-    "Return base name of ‘name’, but without extension."
+def bare_name(name) -> str:
+    """
+    Return base name of ‘name’, but without extension.
+    """
     return os.path.splitext(os.path.basename(name))[0]
 
-def split_filename(name):
-    "Return tuple: index of file (parsed from prefix) and its title."
+def split_filename(name) -> (int, str):
+    """
+    Return tuple: index of file (parsed from prefix) and its title.
+    """
     index, title = name.split(maxsplit=1)
     return index.lstrip('0'), title
 
-def output_name(out_dir, name, ext):
-    """Join directory ‘out_dir’, base name ‘name’ and extension ‘ext’. ‘name’ is
-transformed so it can be used on all major operating systems."""
+def output_name(out_dir, name, ext) -> str:
+    """
+    Join directory ‘out_dir’, base name ‘name’ and extension ‘ext’. ‘name’
+    is transformed so it can be used on all major operating systems.
+    """
     return os.path.join(out_dir, re.sub(r'[\x00/\\?%*:|"<>]', '_', name) +
                         os.path.extsep + ext if ext else '')
 
 def make_flac(name):
-    """Call ‘flac’ codec and tell it to translate file named ‘name’ according to
-supplied arguments ‘args’."""
+    """
+    Call ‘flac’ codec and tell it to translate file named ‘name’ according
+    to supplied arguments ‘args’.
+    """
     cmd = ['flac', '-8', '--force']
     bname = title = bare_name(name)
     if args.indexing:
@@ -124,8 +129,10 @@ supplied arguments ‘args’."""
     subprocess.call(cmd)
 
 def make_mp3(name):
-    """Call ‘lame’ codec and tell it to translate file name ‘name’ according to
-supplied arguments ‘args’."""
+    """
+    Call ‘lame’ codec and tell it to translate file name ‘name’ according to
+    supplied arguments ‘args’.
+    """
     cmd = ['lame', '-b', '320', '-h', '--add-id3v2']
     bname = title = bare_name(name)
     if args.indexing:
