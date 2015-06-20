@@ -26,8 +26,7 @@ import argparse, os, re, shutil, subprocess, sys
 prog_name = os.path.basename(__file__)
 version = '0.1.0'
 description = 'Convert WAV files into FLAC and/or MP3 format'
-license = """
-wav2 — convert WAV files into FLAC and/or MP3 format.
+license = """wav2 — convert WAV files into FLAC and/or MP3 format.
 
 Copyright © 2015 Mark Karpov
 
@@ -152,7 +151,9 @@ def make_mp3(name):
 
 # Execution starts here, show license if user wants to see it.
 
-if args.show_license: print(license)
+if args.show_license:
+    print(license)
+    exit(0)
 
 # It's better to check if required tools are present and print user-friendly
 # error messages.
