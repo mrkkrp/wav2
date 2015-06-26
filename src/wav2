@@ -125,7 +125,7 @@ def make_flac(name):
     if args.year: cmd.extend(['-T', 'DATE=' + args.year])
     cmd.extend(['-o', output_name(args.out_dir, bname, 'flac')])
     cmd.append(name)
-    subprocess.call(cmd)
+    subprocess.check_call(cmd)
 
 def make_mp3(name):
     """
@@ -147,7 +147,7 @@ def make_mp3(name):
     if args.year: cmd.extend(['--ty', args.year])
     cmd.append(name)
     cmd.append(output_name(args.out_dir, bname, 'mp3'))
-    subprocess.call(cmd)
+    subprocess.check_call(cmd)
 
 # Execution starts here, show license if user wants to see it.
 
